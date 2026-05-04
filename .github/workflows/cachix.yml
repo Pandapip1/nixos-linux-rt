@@ -33,7 +33,10 @@ jobs:
       - name: Build kernel
         run: |
           SUPPORTED=$(nix eval --json .#legacyPackages.${{ matrix.arch }}.kernels.${{ matrix.kernel }}.meta.platforms 2>/dev/null || echo "[]")
-          if echo "$SUPPORTED" | grep -qF "${{ matrix.arch }}"; then
+          BROKEN=$(nix eval --json .#legacyPackages.${{ matrix.arch }}.kernels.${{ matrix.kernel }}.meta.broken 2>/dev/null || echo "false")
+          if [ "$BROKEN" = "true" ]; then
+            echo "::notice::Skipping ${{ matrix.kernel }} on ${{ matrix.arch }}; marked as broken."
+          elif echo "$SUPPORTED" | grep -qF "${{ matrix.arch }}"; then
             nix build .#legacyPackages.${{ matrix.arch }}.kernels.${{ matrix.kernel }} --no-link --print-build-logs
           else
             echo "::notice::Skipping ${{ matrix.kernel }} on ${{ matrix.arch }}; not in supported platforms."
