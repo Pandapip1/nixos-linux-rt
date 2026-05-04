@@ -14,15 +14,9 @@ jobs:
 
       - uses: cachix/install-nix-action@v27
 
-      - name: Generate kernel list
-        id: gen
-        shell: bash
-        run: |
-          nix eval '.#legacyPackages.x86_64-linux.safeKernelNames' --json | jq -r '. | join(", ")' | tee kernel_fragment.txt
-
       - name: Update workflow YAML
         run: |
-          KERNELS=$(nix eval '.#legacyPackages.x86_64-linux.safeKernelNames' --json | jq -r '.[]' | paste -sd ', ' -)
+          KERNELS=$(nix eval '.#legacyPackages.x86_64-linux.safeKernelNames' --json | jq -r '. | join(", ")')
           sed -i -E "s|^([[:space:]]*kernel:[[:space:]]*)\[.*\]|\1[ $KERNELS ]|" .github/workflows/cachix.yml
 
       - name: Setup SSH signing + git config
