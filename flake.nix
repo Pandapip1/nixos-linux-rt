@@ -1,4 +1,13 @@
 {
+  nixConfig = {
+    extra-substituters = [
+      "https://nixos-linux-rt.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "nixos-linux-rt.cachix.org-1:DpVBOXeqRuoJkFAANWcHeiLRJMNNkCpFl9vD7ckcpKc="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts = {
