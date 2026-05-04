@@ -28,6 +28,14 @@
           ...
         }:
         let
+          upstreamKernels = pkgs.linuxKernel.kernels;
+          isSafeKernel =
+            drv:
+            let
+              intermediate = lib.tryEval (lib.isDerivation drv && lib.versionAtLeast drv.version "6.12"); # PREEMPT_RT merged into mainline in 6.12
+            in
+            intermediate.success && intermediate.value;
+          safeKernelNames = lib.attrNames (lib.filterAttrs (_: isSafeKernel) upstreamKernels);
           mkRtKernel =
             baseKernel:
             baseKernel.override (originalArgs: {
@@ -43,12 +51,12 @@
                 DRM_I915_GVT_KVMGT = lib.mkForce unset;
               };
             });
-          rtKernels = lib.mapAttrs (_: mkRtKernel) pkgs.linuxKernel.kernels;
+          rtKernels = lib.genAttrs safeKernelNames (name: mkRtKernel upstreamKernels.${name});
           rtPackages = lib.mapAttrs (_: pkgs.linuxPackagesFor) rtKernels;
         in
         {
           legacyPackages = {
-            inherit mkRtKernel;
+            inherit mkRtKernel safeKernelNames;
             kernels = rtKernels;
             packages = rtPackages;
           };
