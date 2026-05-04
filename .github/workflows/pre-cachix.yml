@@ -3,7 +3,6 @@ name: Update kernel matrix
 on:
   workflow_dispatch:
   push:
-  pull_request:
 
 jobs:
   update:
