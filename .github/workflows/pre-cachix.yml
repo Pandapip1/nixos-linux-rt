@@ -49,8 +49,3 @@ jobs:
         run: |
           git remote add codeberg git@codeberg.org:pandapip1/nixos-linux-rt.git
           git push codeberg HEAD:main
-
-      - name: Trigger workflow
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          gh workflow run cachix.yml --ref main
