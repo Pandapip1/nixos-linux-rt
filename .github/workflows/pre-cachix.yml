@@ -18,12 +18,7 @@ jobs:
         id: gen
         shell: bash
         run: |
-          kernels=$(nix eval '.#legacyPackages.x86_64-linux.safeKernelNames' --json \
-            | jq -r '.[]')
-
-          yaml="kernel: [$(echo "$kernels" | paste -sd, -)]"
-
-          echo "$yaml" > kernel_fragment.txt
+          nix eval '.#legacyPackages.x86_64-linux.safeKernelNames' --json | jq -r '. | join(", ")' | tee kernel_fragment.txt
 
       - name: Update workflow YAML
         run: |
