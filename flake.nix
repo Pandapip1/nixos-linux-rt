@@ -43,13 +43,20 @@
                 version = "${baseKernel.version}-rt";
                 modDirVersion = baseKernel.modDirVersion or baseKernel.version;
               };
-              structuredExtraConfig = with lib.kernel; {
-                EXPERT = yes;
-                PREEMPT_RT = yes;
-                # Incompatible with PREEMPT_RT
-                DRM_I915_GVT = lib.mkForce unset;
-                DRM_I915_GVT_KVMGT = lib.mkForce unset;
-              };
+              structuredExtraConfig =
+                with lib.kernel;
+                {
+                  EXPERT = yes;
+                  PREEMPT_RT = yes;
+                  # i915 GVT is incompatible with PREEMPT_RT
+                  # https://lists.freedesktop.org/archives/intel-gfx/2022-February/289691.html
+                  DRM_I915_GVT = lib.mkForce unset;
+                  DRM_I915_GVT_KVMGT = lib.mkForce unset;
+                }
+                // (lib.optionalAttrs (lib.versionAtLeast baseKernel.version "6.12" && lib.versionOlder baseKernel.version "6.13") {
+                  # Fix error: option not set correctly: PREEMPT_VOLUNTARY (wanted 'y', got 'n').
+                  PREEMPT_VOLUNTARY = lib.mkForce no; # PREEMPT_RT and PREEMPT_VOLUNTARY are incompatible
+                });
             });
           rtKernels = lib.genAttrs safeKernelNames (name: mkRtKernel upstreamKernels.${name});
           rtPackages = lib.mapAttrs (_: pkgs.linuxPackagesFor) rtKernels;
