@@ -12,7 +12,6 @@ jobs:
   update-flakes:
     runs-on: codeberg-tiny-lazy
     strategy:
-      fail-fast: false
       matrix:
         input:
           - nixpkgs
