@@ -1,19 +1,17 @@
 name: Build and Upload to Cachix
-
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
-
 on:
   workflow_dispatch:
   push:
-
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.arch == 'aarch64-linux' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
+        arch: [ x86_64-linux, aarch64-linux ]
         kernel: [ linux_6_12, linux_6_18, linux_7_0, linux_default, linux_latest, linux_rpi1, linux_rpi2, linux_rpi3, linux_rpi4, linux_testing, linux_xanmod, linux_xanmod_latest, linux_xanmod_stable, linux_zen ]
 
     steps:
@@ -34,10 +32,9 @@ jobs:
 
       - name: Build kernel
         run: |
-          SUPPORTED=$(nix eval --json .#legacyPackages.x86_64-linux.kernels.${{ matrix.kernel }}.meta.platforms 2>/dev/null || echo "[]")
-          CURRENT=$(nix eval --raw nixpkgs#stdenv.hostPlatform.system 2>/dev/null || echo "x86_64-linux")
-          if echo "$SUPPORTED" | grep -qF "$CURRENT"; then
-            nix build .#legacyPackages.x86_64-linux.kernels.${{ matrix.kernel }} --no-link --print-build-logs
+          SUPPORTED=$(nix eval --json .#legacyPackages.${{ matrix.arch }}.kernels.${{ matrix.kernel }}.meta.platforms 2>/dev/null || echo "[]")
+          if echo "$SUPPORTED" | grep -qF "${{ matrix.arch }}"; then
+            nix build .#legacyPackages.${{ matrix.arch }}.kernels.${{ matrix.kernel }} --no-link --print-build-logs
           else
-            echo "::notice::Skipping ${{ matrix.kernel }}; '$CURRENT' not in supported platforms for kernel."
+            echo "::notice::Skipping ${{ matrix.kernel }} on ${{ matrix.arch }}; not in supported platforms."
           fi
