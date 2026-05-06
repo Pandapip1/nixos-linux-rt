@@ -1,0 +1,30 @@
+name: Build and Upload to Flakehub
+concurrency:
+  group: build-flakehub-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  flakehub-publish:
+    runs-on: "ubuntu-latest"
+    permissions:
+      id-token: "write"
+      contents: "read"
+    steps:
+      - uses: "actions/checkout@v6"
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - uses: "DeterminateSystems/flakehub-push@main"
+        with:
+          name: "Pandapip1/nixos-linux-rt"
+          rolling: true
+          visibility: "public"
+          include-output-paths: true
