@@ -37,14 +37,12 @@
           ...
         }:
         let
-          upstreamKernels = pkgs.linuxKernel.kernels;
           isSafeKernel =
             drv:
             let
               intermediate = lib.tryEval (lib.isDerivation drv && lib.versionAtLeast drv.version "6.12"); # PREEMPT_RT merged into mainline in 6.12
             in
             intermediate.success && intermediate.value;
-          safeKernelNames = lib.attrNames (lib.filterAttrs (_: isSafeKernel) upstreamKernels);
           mkRtKernel =
             baseKernel:
             baseKernel.override (originalArgs: {
@@ -67,12 +65,15 @@
                   PREEMPT_VOLUNTARY = lib.mkForce no; # PREEMPT_RT and PREEMPT_VOLUNTARY are incompatible
                 });
             });
-          rtKernels = lib.genAttrs safeKernelNames (name: mkRtKernel upstreamKernels.${name});
+
+          upstreamKernels = pkgs.linuxKernel.kernels;
+          safeKernels = lib.filterAttrs (_: isSafeKernel) upstreamKernels;
+          rtKernels = lib.mapAttrs (_: mkRtKernel) safeKernels;
           rtPackages = lib.mapAttrs (_: pkgs.linuxPackagesFor) rtKernels;
         in
         {
           legacyPackages = {
-            inherit mkRtKernel safeKernelNames;
+            inherit mkRtKernel;
             kernels = rtKernels;
             packages = rtPackages;
           };
