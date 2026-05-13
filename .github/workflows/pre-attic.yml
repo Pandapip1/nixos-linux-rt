@@ -15,7 +15,7 @@ jobs:
 
       - name: Update workflow YAML
         run: |
-          KERNELS=$(nix eval '.#legacyPackages.x86_64-linux.safeKernelNames' --json | jq -r '. | join(", ")')
+          KERNELS=$(NIXPKGS_ALLOW_UNSUPPORTED_SYSTEM=1 nix eval '.#kernels' --json --impure | jq -r 'keys | join(", ")')
           sed -i -E "s|^([[:space:]]*kernel:[[:space:]]*)\[.*\]|\1[ $KERNELS ]|" .github/workflows/attic.yml
 
       - name: Setup SSH signing + git config
