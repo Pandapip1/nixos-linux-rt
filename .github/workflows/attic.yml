@@ -25,7 +25,7 @@ jobs:
             experimental-features = nix-command flakes
 
       - name: Setup Attic cache
-        uses: ryanccn/attic-action@v0
+        uses: ryanccn/attic-action@v0.5.0
         with:
           endpoint: https://nixos.cache.pandapip1.com/
           cache: nixos-linux-rt
