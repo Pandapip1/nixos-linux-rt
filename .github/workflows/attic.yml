@@ -7,11 +7,11 @@ on:
   push:
 jobs:
   build:
-    runs-on: ${{ matrix.arch == 'aarch64-linux' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.arch == 'aarch64-linux' && 'ubuntu-24.04-arm') || (matrix.arch == 'riscv64-linux' && 'ubuntu-24.04-riscv') || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
-        arch: [ x86_64-linux, aarch64-linux ]
+        arch: [ x86_64-linux, aarch64-linux, riscv64-linux ]
         kernel: [ linux_6_12, linux_6_18, linux_7_0, linux_default, linux_latest, linux_rpi1, linux_rpi2, linux_rpi3, linux_rpi4, linux_testing, linux_xanmod, linux_xanmod_latest, linux_xanmod_stable, linux_zen ]
 
     steps:
