@@ -16,7 +16,7 @@ jobs:
       - name: Update workflow YAML
         run: |
           KERNELS=$(nix eval '.#legacyPackages.x86_64-linux.safeKernelNames' --json | jq -r '. | join(", ")')
-          sed -i -E "s|^([[:space:]]*kernel:[[:space:]]*)\[.*\]|\1[ $KERNELS ]|" .github/workflows/cachix.yml
+          sed -i -E "s|^([[:space:]]*kernel:[[:space:]]*)\[.*\]|\1[ $KERNELS ]|" .github/workflows/attic.yml
 
       - name: Setup SSH signing + git config
         run: |
@@ -36,7 +36,7 @@ jobs:
 
       - name: Commit updated matrix
         run: |
-          git add .github/workflows/cachix.yml
+          git add .github/workflows/attic.yml
 
           if git diff --cached --quiet; then
             echo "No changes to commit"

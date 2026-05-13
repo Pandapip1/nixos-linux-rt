@@ -1,10 +1,10 @@
 {
   nixConfig = {
     extra-substituters = [
-      "https://nixos-linux-rt.cachix.org"
+      "https://nixos.cache.pandapip1.com/nixos-linux-rt"
     ];
     extra-trusted-public-keys = [
-      "nixos-linux-rt.cachix.org-1:DpVBOXeqRuoJkFAANWcHeiLRJMNNkCpFl9vD7ckcpKc="
+      "nixos-linux-rt:v8hi9bTm2fwCfChJgKLJw2xar8nBvqDKfyuMGfk/gfY="
     ];
   };
 
